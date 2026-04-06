@@ -1,16 +1,19 @@
 const express = require("express");
 const router = require("./routes");
-const { config } = require("dotenv");
 const dbConfig = require("./configs/dbConfig");
-const app = express()
+const dns = require("dns");
 
-require("dotenv").config()
-const dns = require("dns")
-dns.setServers(['4.4.4.4','4.4.4.4'])
+require("dotenv").config();
 
-app.use(express.json())
-app.use(router)
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
-dbConfig()
+const app = express();
 
-app.listen(3000,()=> console.log("server Connected"));
+app.use(express.json());
+app.use(router);
+
+dbConfig();
+
+app.listen(3000, "0.0.0.0", () => {
+  console.log("Server connected");
+});

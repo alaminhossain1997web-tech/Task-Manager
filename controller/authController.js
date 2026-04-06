@@ -1,4 +1,4 @@
-const { isvalidEmail, isvalidPassword } = require("../helpers/utils");
+const { isvalidEmail, isvalidPassword, generateOTP } = require("../helpers/utils");
 const authSchema = require("../models/authSchema");
 
 const registration = async (req,res) => {
@@ -13,9 +13,11 @@ const {fullName, email, password} =req.body;
             {/*existing email password check*/}
             const existingEmail =await authSchema.findOne(email);
             if (existingEmail) return res.status(400).send({message:"This Email already exist"})
-
-            const user = await authSchema({fullName, email, password})
+            const OTP_number = generateOTP();
+            const user = await authSchema({fullName, email, password, otp: OTP_number, otpExpiry:Date.now() + 4 * 60 * 1000})
             user.save()
+
+            await mailsender({email, otp: OTP_number, subject:"OTP verification mail"})
 
         res.status(200).send({massege:"registration Successfull!"})        
     } catch (error) {
