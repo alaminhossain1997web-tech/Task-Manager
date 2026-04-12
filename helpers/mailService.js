@@ -1,26 +1,31 @@
 const nodemailer = require("nodemailer");
+const { emailTemplets } = require("./emailTemplets");
 
 // create transporteer , for send a mail,
 
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.example.com",
+  service: "gmail",
   port: 587,
   secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    user: "alaminhossain1997.web@gmail.com",
+    pass: "reug xmin ezsc inpt",
   },
 });
  
 // mailsender 
-const mailsender = async ({email,subject,otp}) => {
+const mailsender = async ({ email, subject, otp, otpExpiry }) => {
+  try {
     await transporter.sendMail({
-    from: '"Taskmanagar Team" <exampleMail71@gmail.com>', // sender address
-    to: email, // list of recipients
-    subject: subject, // subject line
-    html: `<b>please verify your email</b>
-           <b>OTP:${otp}</b>`
-  });
-}
+      from: 'Taskmanager Team" <yourgmail@gmail.com>',
+      to: email,
+      subject: subject,
+      html: emailTemplets(otp,otpExpiry)
+      ,
+    });
+  } catch (error) {
+    console.log("MAIL ERROR:", error.message);
+  }
+};
   module.exports = {mailsender}

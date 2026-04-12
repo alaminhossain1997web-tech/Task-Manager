@@ -6,18 +6,18 @@ const authSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    fullname:{
+    fullName:{
         type: String,
-        require: true,
+        required: true,
         trim: true
     },
     email:{
         type: String,
-        require: true
+        required: true
     },
     password:{
         type: String,
-        require: true
+        required: true
     },
     isVerified:{
         type: Boolean,
