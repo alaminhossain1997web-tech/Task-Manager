@@ -46,5 +46,13 @@ authSchema.pre('save', async function () {
     res.status(500).send({message:"Invalied request"})
   }
 });
+authSchema.methods.comparePassword = async function (password) {
+  try {
+    return await bcrypt.compare(password, this.password);
+  } catch (err) {
+    throw new Error("Password comparison failed");
+  }
+};
+
 
 module.exports = mongoose.model("user", authSchema)
