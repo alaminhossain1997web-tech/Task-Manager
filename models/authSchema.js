@@ -2,7 +2,7 @@ const mongoose = require ("mongoose");
 const bcrypt= require ("bcrypt");
 
 const authSchema = new mongoose.Schema({
-    avater:{
+    avatar:{
         type: String,
         default: ""
     },

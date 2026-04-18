@@ -50,9 +50,25 @@ const {email, password} =req.body;
             const isMatch = await user.comparePassword(password);
         if (!isMatch) return res.status(400).send({message:"Invalid Password"})
         res.status(200).send({message:"Login successful!"})
+
+        const accessToken = generateAccessToken({userId: user._id, email: user.email});
+        res.status(200).send({message:"Login successful!", accessToken})
+
+        res.cookie("accessToken",accessToken)
     } catch (error) {
         res.status(500).send({message: "Internal Server Error"})
     }
-}
+};
+       const userprofile = async (req,res) => {
+       try{
+        const userData = await authSchema.findOne({userId: req.user._id}).select("avatar fullName email")
+        if(!userData) {
+            return res.status(404).send({message:"User not found"})
+        }
+        res.status(200).send(userData)
+       }catch (error) {
+       
+    }
+    }
 
-module.exports = {registration, verifyOTP, login}
+module.exports = {registration, verifyOTP, login, userprofile}
