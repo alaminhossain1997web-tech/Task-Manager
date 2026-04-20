@@ -1,28 +1,20 @@
 const express = require("express");
 const router = require("./routes");
 const dbConfig = require("./configs/dbConfig");
-const cookieParser = require("cookie-parser");
-
 require("dotenv").config();
 
+const cookieParser = require("cookie-parser");
+
+// for DNS server problem
+// const dns = require("dns");
+// dns.setServers(['8.8.8.8', '8.8.4.4']);
+
 const app = express();
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(router);
 
-const PORT = process.env.PORT || 8000;
+dbConfig();
 
-const startServer = async () => {
-  try {
-    await dbConfig();
-
-    app.listen(PORT, () => {
-      console.log(`Server connected on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error("Failed to start server:", error.message);
-    process.exit(1);
-  }
-};
-
-startServer();
+app.listen(8000, () => console.log("Server is running..."));

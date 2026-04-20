@@ -51,15 +51,16 @@ const {email, password} =req.body;
         if (!isMatch) return res.status(400).send({message:"Invalid Password"})
         res.status(200).send({message:"Login successful!"})
 
-        const accessToken = generateAccessToken({userId: user._id, email: user.email});
+        const accessToken = generateAccessToken({_id: user._id, email: user.email});
         res.status(200).send({message:"Login successful!", accessToken})
 
         res.cookie("accessToken",accessToken)
+        console.log(accessToken)
     } catch (error) {
         res.status(500).send({message: "Internal Server Error"})
     }
 };
-       const userprofile = async (req,res) => {
+const userprofile = async (req,res) => {
        try{
         const userData = await authSchema.findOne({userId: req.user._id}).select("avatar fullName email")
         if(!userData) {
@@ -69,6 +70,16 @@ const {email, password} =req.body;
        }catch (error) {
        
     }
-    }
+};
+const UpdateProfile = async (req,res) => {
+const {fullName,} = req.body;
+const userId = req.user._id;
+try {
+ console.log(req.file) 
+res.send("update profile route")
+}catch (error) {
 
-module.exports = {registration, verifyOTP, login, userprofile}
+}
+}
+
+module.exports = {registration, verifyOTP, login, userprofile, UpdateProfile}
