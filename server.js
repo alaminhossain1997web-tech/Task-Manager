@@ -6,9 +6,9 @@ require("dotenv").config();
 const cookieParser = require("cookie-parser");
 
 // for DNS server problem
-// const dns = require("dns");
-// dns.setServers(['8.8.8.8', '8.8.4.4']);
-
+ const dns = require("dns");
+ dns.setServers(['8.8.8.8', '8.8.4.4']);
+ 
 const app = express();
 
 app.use(cookieParser());

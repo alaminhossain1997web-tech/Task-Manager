@@ -1,6 +1,7 @@
 const { mailsender } = require("../helpers/mailService");
-const { isvalidEmail, isvalidPassword, generateOTP } = require("../helpers/utils");
+const { isvalidEmail, isvalidPassword, generateOTP, generateAccessToken } = require("../helpers/utils");
 const authSchema = require("../models/authSchema");
+const cloudinary = require('../configs/cloudinary').v2
 
 //Registration
 const registration = async (req,res) => {
@@ -27,7 +28,6 @@ const {fullName, email, password} =req.body;
     }
 };
 //OTP Verification
-
 const verifyOTP = async (req,res) => {
     const {email, otp} = req.body;
     try {
@@ -38,9 +38,7 @@ const verifyOTP = async (req,res) => {
          res.status(500).send({message: "Internal Server Error"})
     }
 };
-
 //Login 
-
 const login = async (req,res) => {
 const {email, password} =req.body;
     try {
@@ -49,12 +47,10 @@ const {email, password} =req.body;
         if (!user.isVerified) return res.status(400).send({message:"Please verify your email before login"})
             const isMatch = await user.comparePassword(password);
         if (!isMatch) return res.status(400).send({message:"Invalid Password"})
-        res.status(200).send({message:"Login successful!"})
-
         const accessToken = generateAccessToken({_id: user._id, email: user.email});
-        res.status(200).send({message:"Login successful!", accessToken})
+        
+        res.status(200).cookie("accessToken",accessToken).send({message:"Login successful!", accessToken})
 
-        res.cookie("accessToken",accessToken)
         console.log(accessToken)
     } catch (error) {
         res.status(500).send({message: "Internal Server Error"})
@@ -62,7 +58,7 @@ const {email, password} =req.body;
 };
 const userprofile = async (req,res) => {
        try{
-        const userData = await authSchema.findOne({userId: req.user._id}).select("avatar fullName email")
+        const userData = await authSchema.findOne({_id: req.user._id}).select("avatar fullName email")
         if(!userData) {
             return res.status(404).send({message:"User not found"})
         }
@@ -76,8 +72,14 @@ const {fullName,} = req.body;
 const userId = req.user._id;
 try {
  console.log(req.file) 
+ await cloudinary.uploader.upload(
+  req.file.path,
+ (error, result)=>{
+  console.log(result, error);
+});
 res.send("update profile route")
 }catch (error) {
+console.log(error);
 
 }
 }

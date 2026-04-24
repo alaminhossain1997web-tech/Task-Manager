@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken")
 const authMiddleWare = (req,res,next) => {
     try {
         const {accessToken} = req.cookies;
-        const decoded = jwt.verify(accessToken, process.env.JWT_SECRET)
+        console.log(accessToken);
+        
+        const decoded = jwt.verify(accessToken, process.env.JWT_SECRET_KEY)
         if(decoded){
             req.user = decoded;  // store the decoded user information in the request object for further use
             next()  // call the next route handler to continue processing the request
@@ -12,7 +14,10 @@ const authMiddleWare = (req,res,next) => {
             res.status(401).send({message:"Unauthorized request"})
         }
         
-        }catch (error) {
+        }
+        catch (error) {
+            console.log(error);
+            
          res.status(401).send({message:"Unauthorized request"})
     }
 }
