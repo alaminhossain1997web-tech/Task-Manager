@@ -1,9 +1,10 @@
 const express = require("express");
-const upload = require("../helpers/multer");
 const { registration, login, verifyOTP, userprofile, UpdateProfile } = require("../controller/authController");
 const { authMiddleWare } = require("../middleware/authMiddleWare");
-const router = express.Router()
 
+const router = express.Router()
+const multer = require("multer");
+const upload = multer()
  router.post("/registration", registration)
  router.post("/verify-otp", verifyOTP)
  router.post("/login", login)
