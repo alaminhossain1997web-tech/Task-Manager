@@ -41,6 +41,11 @@ const projectSchema = new mongoose.Schema({
         ref: "user",
         required: true
     },
+    slug:{
+        type: String,
+        required: true,
+        unique:true
+    },
     members:[{
         type: mongoose.Types.ObjectId,
         ref: "user"
