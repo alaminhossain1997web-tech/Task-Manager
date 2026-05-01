@@ -42,14 +42,14 @@ authSchema.pre('save', async function () {
     const salt = await bcrypt.genSalt(saltRounds);
     this.password = await bcrypt.hash(this.password, salt);
 
-  } catch (err) {
+  } catch (error) {
     res.status(500).send({message:"Invalied request"})
   }
 });
 authSchema.methods.comparePassword = async function (password) {
   try {
     return await bcrypt.compare(password, this.password);
-  } catch (err) {
+  } catch (error) {
     throw new Error("Password comparison failed");
   }
 };

@@ -15,6 +15,7 @@ const authMiddleWare = (req,res,next) => {
         }
         
         }
+        
         catch (error) {
             console.log(error);
             
