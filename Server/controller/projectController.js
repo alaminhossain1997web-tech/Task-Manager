@@ -4,7 +4,7 @@ const authSchema = require("../models/authSchema");
 
 
 
-// create project
+// create projects
 const createProject = async (req, res) => {
   const { Title, discription } = req.body;
 
