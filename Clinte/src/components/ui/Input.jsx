@@ -38,7 +38,7 @@ const Input = ({
           transition
           focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           disabled:bg-gray-100 disabled:cursor-not-allowed
-          ${error ? "border-red-500" : "border-gray-300"}
+          ${error ? "border-red-500" : "border-blue-700"}
         `}
       />
 

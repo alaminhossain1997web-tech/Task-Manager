@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useLoginMutation } from "../Services/api";
+import { toast } from "react-toastify";
 
 const Login = () => {
+  const navigate = useNavigate()
+  const [loginUser]= useLoginMutation()
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -37,12 +41,32 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validate()) {
-      console.log("Form Data:", formData);
-      alert("Registration successful!");
+    if (!validate())return; {
+      try {
+            const res = await loginUser(formData).unwrap();
+            toast.success("Login successful!", {
+              position: "top-center",
+              autoClose: 5000,
+              theme: "colored",
+            });
+            setTimeout(() => {
+              navigate("/dashboard");
+            }, 2000);
+      
+            // reset form
+            setFormData({
+              email: "",
+              password: "",
+            });
+          } catch (error) {
+            console.log("Error:", error);
+            setErrors({
+              [error.data.field]: error.data.message,
+            });
+          }
     }
   };
   return (
@@ -55,7 +79,7 @@ const Login = () => {
     {/* LEFT SIDE */}
     <div className="w-full lg:w-1/2 flex items-center justify-center z-10 px-6 py-10">
 
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-sm">
+      <div className="w-full max-w-md bg-transparent border border-blue-700 p-6 rounded-lg shadow-sm">
 
         <h2 className="text-2xl font-semibold mb-6 text-center">
           Welcome Back!

@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useRegistrationMutation } from "../Services/api";
+import { toast } from "react-toastify";
 
 const Registration = () => {
+  const navigate = useNavigate();
+  const [registerUser] = useRegistrationMutation();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -41,91 +45,107 @@ const Registration = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (validate()) {
-      console.log("Form Data:", formData);
-      alert("Registration successful!");
+    if (!validate()) return;
+
+    try {
+      const res = await registerUser(formData).unwrap();
+      toast.success("Registration successful!", {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "colored",
+      });
+      setTimeout(() => {
+        navigate("/otpverify");
+      }, 2000);
+
+      // reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        password: "",
+      });
+    } catch (error) {
+      console.log("Error:", error);
+      setErrors({
+        [error.data.field]: error.data.message,
+      });
     }
   };
   return (
-     <div className="min-h-screen bg-[#e3d6c5] relative overflow-hidden flex flex-col lg:flex-row font-sans">
+    <div className='min-h-screen bg-[#e3d6c5] relative overflow-hidden flex flex-col lg:flex-row font-sans'>
+      {/* Background blobs */}
+      <div className='absolute top-[-10%] left-[5%] w-72 h-72 sm:w-96 sm:h-96 bg-[#d4c4b1] rounded-full opacity-50'></div>
+      <div className='absolute bottom-[5%] left-[20%] w-40 h-40 sm:w-64 sm:h-64 bg-[#d4c4b1] rounded-full opacity-50 hidden sm:block'></div>
 
-    {/* Background blobs */}
-    <div className="absolute top-[-10%] left-[5%] w-72 h-72 sm:w-96 sm:h-96 bg-[#d4c4b1] rounded-full opacity-50"></div>
-    <div className="absolute bottom-[5%] left-[20%] w-40 h-40 sm:w-64 sm:h-64 bg-[#d4c4b1] rounded-full opacity-50 hidden sm:block"></div>
-
-    {/* LEFT SIDE */}
-    <div className="w-full lg:w-1/2 flex items-center justify-center z-10 px-6 py-10">
-
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-sm">
-
-        <h1 className="text-xl md:text-2xl font-bold text-[#6c75d1] mb-6 md:mb-8 text-center italic">
+      {/* LEFT SIDE */}
+      <div className='w-full lg:w-1/2 flex items-center justify-center z-10 px-6 py-10'>
+        <div className='w-full max-w-md bg-transparent border border-blue-700 p-6 rounded-lg shadow-sm'>
+          <h1 className='text-xl md:text-2xl font-bold text-[#6c75d1] mb-6 md:mb-8 text-center italic'>
             Create Account
           </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className='space-y-4'>
+            <Input
+              label='Full Name'
+              name='fullName'
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder='Enter your full name'
+              error={errors.fullName}
+            />
 
-          <Input
-            label="Full Name"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            placeholder="Enter your full name"
-            error={errors.fullName}
-          />
+            <Input
+              label='Email'
+              name='email'
+              type='email'
+              value={formData.email}
+              onChange={handleChange}
+              placeholder='Enter your email'
+              error={errors.email}
+            />
 
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-            error={errors.email}
-          />
+            <Input
+              label='Password'
+              name='password'
+              type='password'
+              value={formData.password}
+              onChange={handleChange}
+              placeholder='Enter your password'
+              error={errors.password}
+            />
 
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-            error={errors.password}
-          />
+            <Button type='submit' className='w-full'>
+              Sign Up
+            </Button>
+          </form>
+        </div>
+      </div>
 
-          <Button type="submit" className="w-full">
-            Sign Up
-          </Button>
+      {/* RIGHT SIDE */}
+      <div className='w-full lg:w-1/2 relative flex items-center justify-center py-10 lg:py-0'>
+        <div className='absolute w-[140%] h-[140%] bg-[#4751b9] rounded-full top-[10%] lg:top-[-20%] lg:right-[-30%]'></div>
 
-        </form>
+        <div className='relative z-10 text-center px-4'>
+          <h2 className='text-3xl sm:text-4xl lg:text-5xl font-bold text-[#e09b2d] mb-4'>
+            Get Started
+          </h2>
+
+          <p className='text-[#a8aee0] mb-6 text-xs sm:text-sm font-semibold'>
+            Already have an account?
+          </p>
+
+          <Link
+            to='/login'
+            className='px-8 sm:px-10 py-2 border-2 border-[#e09b2d] text-[#e3d6c5] rounded-2xl hover:bg-[#e09b2d] hover:text-white transition text-sm sm:text-base'>
+            Sign In
+          </Link>
+        </div>
       </div>
     </div>
+  );
+};
 
-    {/* RIGHT SIDE */}
-    <div className="w-full lg:w-1/2 relative flex items-center justify-center py-10 lg:py-0">
-
-      <div className="absolute w-[140%] h-[140%] bg-[#4751b9] rounded-full top-[10%] lg:top-[-20%] lg:right-[-30%]"></div>
-
-      <div className="relative z-10 text-center px-4">
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#e09b2d] mb-4">
-          Get Started
-        </h2>
-
-        <p className="text-[#a8aee0] mb-6 text-xs sm:text-sm font-semibold">
-          Already have an account?
-        </p>
-
-        <Link to="/login" className="px-8 sm:px-10 py-2 border-2 border-[#e09b2d] text-[#e3d6c5] rounded-2xl hover:bg-[#e09b2d] hover:text-white transition text-sm sm:text-base">
-          Sign In
-        </Link>
-      </div>
-    </div>
-
-  </div>
-  )
-}
-
-export default Registration
+export default Registration;

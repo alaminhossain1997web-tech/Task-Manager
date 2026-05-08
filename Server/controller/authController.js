@@ -8,15 +8,15 @@ const { uploadCloudinary, distroyFromCloudinary } = require("../helpers/cloudina
 const registration = async (req,res) => {
 const {fullName, email, password} =req.body;
     try {
-        if (!fullName?.trim()) return res.status(400).send({message:"Fullname is required"})
-        if (!email) return res.status(400).send({message:"Email is required"})
-        if (!password) return res.status(400).send({message:"Password is required"})
-        if (!isvalidEmail(email)) return res.status(400).send({message:"Invalid Email"})
-        if (!isvalidPassword(password)) return res.status(400).send({message:"Invalid Password"})
+        if (!fullName?.trim()) return res.status(400).send({message:"Fullname is required",field:"fullName"})
+        if (!email) return res.status(400).send({message:"Email is required",field:"email"})
+        if (!password) return res.status(400).send({message:"Password is required",field:"password"})
+        if (!isvalidEmail(email)) return res.status(400).send({message:"Invalid Email",field:"email"})
+        if (!isvalidPassword(password)) return res.status(400).send({message:"Invalid Password",field:"password"})
  
             {/*existing email password check*/}
             const existingEmail =await authSchema.findOne({email});
-            if (existingEmail) return res.status(400).send({message:"This Email already exist"})
+            if (existingEmail) return res.status(400).send({message:"This Email already exist",field:"email"})
             const OTP_number = generateOTP();
             const user = new authSchema({fullName, email, password, otp: OTP_number, otpExpiry:Date.now() + 4 * 60 * 1000})
             await user.save()
@@ -44,10 +44,10 @@ const login = async (req,res) => {
 const {email, password} =req.body;
     try {
         const user = await authSchema.findOne({email});
-        if (!user) return res.status(400).send({message:"Invalid Email"})
-        if (!user.isVerified) return res.status(400).send({message:"Please verify your email before login"})
+        if (!user) return res.status(400).send({message:"Invalid Email",field:"email"})
+        if (!user.isVerified) return res.status(400).send({message:"Please verify your email before login",field:"email"})
             const isMatch = await user.comparePassword(password);
-        if (!isMatch) return res.status(400).send({message:"Invalid Password"})
+        if (!isMatch) return res.status(400).send({message:"Invalid Password",field:"password"})
         const accessToken = generateAccessToken({_id: user._id, email: user.email});
         
         res.status(200).cookie("accessToken",accessToken).send({message:"Login successful!", accessToken})
