@@ -53,7 +53,7 @@ const Login = () => {
               theme: "colored",
             });
             setTimeout(() => {
-              navigate("/dashboard");
+              navigate("/");
             }, 2000);
       
             // reset form
@@ -64,7 +64,7 @@ const Login = () => {
           } catch (error) {
             console.log("Error:", error);
             setErrors({
-              [error.data.field]: error.data.message,
+              [error?.data?.field]: error.data.message,
             });
           }
     }

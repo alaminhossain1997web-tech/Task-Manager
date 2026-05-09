@@ -1,11 +1,7 @@
 import React from "react";
+import AvatarGroup from "./AvatarGroup";
 
-const ProjectCard = ({
-  number = "01",
-  title = "UI / UX Creative Design",
-  description = "Clean and modern UI/UX design focused on usability and user satisfaction.",
-  icon,
-}) => {
+const ProjectCard = ({project}) => {
   return (
     <div className="container">
       <div
@@ -22,24 +18,28 @@ const ProjectCard = ({
           flex items-end justify-start p-4 shadow-md"
         >
           <span className="text-white text-lg font-semibold">
-            {number}
+            {project.number}
           </span>
         </div>
 
         {/* Icon */}
         <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-700 text-white group-hover:scale-110 transition">
-          {icon}
+          {project.icon}
         </div>
 
         {/* Title */}
         <h1 className="font-semibold text-lg text-gray-800 group-hover:text-violet-600 transition">
-          {title}
+          {project.title}
         </h1>
 
         {/* Description */}
         <p className="text-sm text-gray-500 leading-relaxed">
-          {description}
+          {project.description}
         </p>
+
+        <AvatarGroup members={project?.members}/>
+
+
 
         {/* Bottom Line */}
         <div className="h-[2px] w-0 bg-violet-500 group-hover:w-full transition-all duration-300"></div>

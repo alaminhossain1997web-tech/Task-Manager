@@ -56,6 +56,15 @@ const {email, password} =req.body;
         res.status(500).send({message: "Internal Server Error"})
     }
 };
+// logout
+const logout = async (req, res) => {
+  try {
+    res.status(200).clearCookie("accessToken").send({ message: "Logout successful!" });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
 //user profile
 const userprofile = async (req,res) => {
        try{
@@ -96,4 +105,4 @@ console.log(error);
 }
 }
 
-module.exports = {registration, verifyOTP, login, userprofile, UpdateProfile}
+module.exports = {registration, verifyOTP, login,logout, userprofile, UpdateProfile}

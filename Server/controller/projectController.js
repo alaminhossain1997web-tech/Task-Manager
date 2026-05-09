@@ -6,13 +6,13 @@ const authSchema = require("../models/authSchema");
 
 // create projects
 const createProject = async (req, res) => {
-  const { Title, discription } = req.body;
+  const { Title, description } = req.body;
 
   try {
     const slug = generateSlug(Title)
     const project = new projectSchema({
       Title,
-      discription,
+      description,
       slug,
       author: req.user._id
       
@@ -44,7 +44,7 @@ const projectList = async (req,res)=>{
       {members: req.user._id,// members also can see the projectlist
         }],
       Title: { $regex: search || "", $options: 'i'} //regex use for search project (shortcut)
-    }).populate("author","fullName avatar"); //populate use for author's name and avatar findout from authschema
+    }).populate("author members","fullName avatar"); //populate use for author's name and avatar findout from authschema
     if (!projects){
       return res.status(400).send({message:"Project not found"})
     }
