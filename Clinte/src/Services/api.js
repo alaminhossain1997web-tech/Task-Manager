@@ -5,6 +5,14 @@ export const apiService = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_BASE_URL || "https://taskcreateapp-backend.onrender.com",
     credentials: "include",
+    prepareHeaders: (headers) => {
+      // localStorage থেকে টোকেন নিয়ে Authorization হেডারে সেট করা হচ্ছে
+      const token = localStorage.getItem("token");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["Profile", "Projects"],
   endpoints: (build) => ({
