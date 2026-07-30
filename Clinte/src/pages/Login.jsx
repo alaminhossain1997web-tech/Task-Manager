@@ -43,7 +43,7 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (event) => {
+ const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!validate()) {
@@ -51,8 +51,17 @@ const Login = () => {
     }
 
     try {
-      await loginUser(formData).unwrap();
+      const response = await loginUser(formData).unwrap();
+      
+      if (response?.token) {
+        localStorage.setItem("token", response.token);
+      }
+      if (response?.user) {
+        localStorage.setItem("user", JSON.stringify(response.user));
+      }
+
       toast.success("Login successful!");
+      
       navigate("/");
     } catch (error) {
       const message = error?.data?.message || "Login failed. Please try again.";
