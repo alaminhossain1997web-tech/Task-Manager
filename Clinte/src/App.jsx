@@ -10,6 +10,13 @@ import Registration from "./pages/Registration";
 import UpdateProfile from "./pages/UpdateProfile";
 
 const ProtectedRoute = () => {
+  const token = localStorage.getItem("token");
+
+  // যদি লোকাল স্টোরেজে টোকেনই না থাকে, তবে ব্যাকএন্ডে কল দেওয়ার দরকারই নেই, সরাসরি লগইনে পাঠাবে
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
   const {
     data: profile,
     isLoading,
@@ -21,15 +28,13 @@ const ProtectedRoute = () => {
     return <Loader />;
   }
 
-  if (isError && error?.status !== 401) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-red-600">
-        {error?.data?.message || "Unable to verify your session. Please try again."}
-      </div>
-    );
+  if (isError) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    return <Navigate to="/login" replace />;
   }
 
-  if (isError || !profile) {
+  if (!profile) {
     return <Navigate to="/login" replace />;
   }
 
