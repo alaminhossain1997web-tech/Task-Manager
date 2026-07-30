@@ -1,100 +1,116 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "../Services/api";
 
 const UpdateProfile = ({ onClose }) => {
+  const navigate = useNavigate();
+  const { data: profile } = useGetProfileQuery();
+  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
   const [fullName, setFullName] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e) => {
-    const image = e.target.files[0];
-    setFile(image);
-
-    if (image) {
-      setPreview(URL.createObjectURL(image));
+  const closePage = () => {
+    if (onClose) {
+      onClose();
+      return;
     }
+
+    navigate("/");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleFileChange = (event) => {
+    const image = event.target.files?.[0] || null;
+    setFile(image);
+    setPreview(image ? URL.createObjectURL(image) : null);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
     const formData = new FormData();
     formData.append("fullName", fullName);
-    if (file) formData.append("avatar", file);
+    if (file) {
+      formData.append("avatar", file);
+    }
 
     try {
-      const res = await fetch("http://localhost:8000/update-profile", {
-        method: "PUT",
-        body: formData,
-        credentials: "include",
-      });
-
-      const data = await res.json();
-      console.log(data);
-
+      await updateProfile(formData).unwrap();
       toast.success("Profile updated successfully");
-
-      if (onClose) onClose();
+      closePage();
     } catch (error) {
-      console.log(error);
-      toast.error("Update failed");
-    } finally {
-      setLoading(false);
+      toast.error(error?.data?.message || "Update failed. Please try again.");
     }
   };
 
+  const imageSource = preview || profile?.avatar;
+  const profileInitial = profile?.fullName?.charAt(0).toUpperCase();
+
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-6 space-y-5 relative">
-
-      {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 text-gray-500 hover:text-black text-xl"
-      >
-        ✕
-      </button>
-
-      <h1 className="text-xl font-bold text-center">
-        Update Profile
-      </h1>
-
-      {/* Image */}
-      <div className="flex justify-center">
-        <img
-          src={preview || "https://via.placeholder.com/120"}
-          alt="avatar"
-          className="w-24 h-24 rounded-full object-cover border"
-        />
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-6 space-y-5 relative">
+        {/* Close Button */}
         <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          type="button"
+          onClick={closePage}
+          disabled={isLoading}
+          className="absolute top-3 right-3 text-gray-500 hover:text-black text-xl disabled:cursor-not-allowed"
+          aria-label="Close profile update form"
         >
-          {loading ? "Updating..." : "Update Profile"}
+          ×
         </button>
-      </form>
+
+        <h1 className="text-xl font-bold text-center">
+          Update Profile
+        </h1>
+
+        {/* Image */}
+        <div className="flex justify-center">
+          {imageSource ? (
+            <img
+              src={imageSource}
+              alt="avatar preview"
+              className="w-24 h-24 rounded-full object-cover border"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center text-3xl font-semibold border">
+              {profileInitial || "U"}
+            </div>
+          )}
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            disabled={isLoading}
+            className="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            disabled={isLoading}
+            className="w-full border p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed"
+          />
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isLoading ? "Updating..." : "Update Profile"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

@@ -23,4 +23,4 @@ app.use(router);
 
 dbConfig();
 
-app.listen(8000, () => console.log("Server is running..."));
+app.listen(8000, () => console.log("Server is running...",8000));

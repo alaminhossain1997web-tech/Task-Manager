@@ -1,9 +1,10 @@
 import React from "react";
+import { Link } from "react-router";
 import AvatarGroup from "./AvatarGroup";
 
-const ProjectCard = ({project}) => {
+const ProjectCard = ({ project }) => {
   return (
-    <div className="container">
+    <Link to={`/projects/${project._id}`} className="container block">
       <div
         className="group w-72 bg-white/70 backdrop-blur-md border border-blue-700
         shadow-lg rounded-2xl p-6 space-y-4 relative overflow-hidden
@@ -29,22 +30,20 @@ const ProjectCard = ({project}) => {
 
         {/* Title */}
         <h1 className="font-semibold text-lg text-gray-800 group-hover:text-violet-600 transition">
-          {project.title}
+          {project.Title}
         </h1>
 
         {/* Description */}
         <p className="text-sm text-gray-500 leading-relaxed">
-          {project.description}
+          {project.discription}
         </p>
 
-        <AvatarGroup members={project?.members}/>
-
-
+        <AvatarGroup members={project.members} />
 
         {/* Bottom Line */}
         <div className="h-[2px] w-0 bg-violet-500 group-hover:w-full transition-all duration-300"></div>
       </div>
-    </div>
+    </Link>
   );
 };
 

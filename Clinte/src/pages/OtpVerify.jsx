@@ -1,31 +1,62 @@
 import React, { useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import { useVerifyOtpMutation } from "../Services/api";
 
-const OtpVerify = ({ length = 4, onSubmit }) => {
+const OtpVerify = ({ length = 4 }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
   const [otp, setOtp] = useState(Array(length).fill(""));
+  const [error, setError] = useState("");
   const inputsRef = useRef([]);
 
+  const email = location.state?.email || sessionStorage.getItem("pendingVerificationEmail");
+
   const handleChange = (value, index) => {
-    if (!/^[0-9]?$/.test(value)) return;
+    if (!/^[0-9]?$/.test(value)) {
+      return;
+    }
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+    setError("");
 
-    // auto focus next
     if (value && index < length - 1) {
-      inputsRef.current[index + 1].focus();
+      inputsRef.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputsRef.current[index - 1].focus();
+  const handleKeyDown = (event, index) => {
+    if (event.key === "Backspace" && !otp[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSubmit) onSubmit(otp.join(""));
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const verificationCode = otp.join("");
+    if (!email) {
+      setError("Please register again before verifying your email.");
+      return;
+    }
+
+    if (verificationCode.length !== length) {
+      setError("Enter all four digits of your verification code.");
+      return;
+    }
+
+    try {
+      await verifyOtp({ email, otp: verificationCode }).unwrap();
+
+      sessionStorage.removeItem("pendingVerificationEmail");
+      toast.success("Email verification successful!");
+      navigate("/login");
+    } catch (requestError) {
+      setError(requestError?.data?.message || "Verification failed. Please try again.");
+    }
   };
 
   return (
@@ -57,27 +88,35 @@ const OtpVerify = ({ length = 4, onSubmit }) => {
           {otp.map((value, index) => (
             <input
               key={index}
-              ref={(el) => (inputsRef.current[index] = el)}
+              ref={(element) => {
+                inputsRef.current[index] = element;
+              }}
               type="text"
+              inputMode="numeric"
               maxLength="1"
               value={value}
-              onChange={(e) => handleChange(e.target.value, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
+              onChange={(event) => handleChange(event.target.value, index)}
+              onKeyDown={(event) => handleKeyDown(event, index)}
+              disabled={isLoading}
               className="w-10 h-10 text-center text-black bg-transparent
                border border-blue-700 rounded-lg
               focus:border-black outline-none transition
-              opacity-80 focus:opacity-100"
+              opacity-80 focus:opacity-100 disabled:cursor-not-allowed"
             />
           ))}
         </div>
 
+        {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
         {/* Button */}
         <button
           type="submit"
+          disabled={isLoading}
           className="w-full py-2 border border-[#369eff] text-blue-700
-          rounded-lg transition hover:bg-blue-700 hover:text-white cursor-pointer"
+          rounded-lg transition hover:bg-blue-700 hover:text-white cursor-pointer
+          disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Verify
+          {isLoading ? "Verifying..." : "Verify"}
         </button>
       </form>
     </div>

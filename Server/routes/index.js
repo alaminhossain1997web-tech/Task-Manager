@@ -12,7 +12,3 @@ router.use("/auth",authRoute)
 router.use("/projects",authMiddleWare, projectsRoute)
  
 module.exports = router;
-
-// Q0qI5pPqnlBPITqO
-// DB_URL=mongodb+srv://task:Q0qI5pPqnlBPITqO@cluster0.rswnbmr.mongodb.net/task?appName=Cluster0 
-// JWT_SECRET_KEY=wq093xkm@

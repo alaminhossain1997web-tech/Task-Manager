@@ -7,26 +7,32 @@ import { toast } from "react-toastify";
 
 const Registration = () => {
   const navigate = useNavigate();
-  const [registerUser] = useRegistrationMutation();
+  const [registerUser, { isLoading }] = useRegistrationMutation();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
   });
-
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((currentData) => ({
+      ...currentData,
+      [name]: value,
+    }));
+
+    setErrors((currentErrors) => ({
+      ...currentErrors,
+      [name]: "",
+    }));
   };
 
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.fullName) {
+    if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required";
     }
 
@@ -36,44 +42,50 @@ const Registration = () => {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (!/^(?=.{8,}$)/.test(formData.password)) {
+      newErrors.password =
+        "Use at least 8 numbers";
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     try {
-      const res = await registerUser(formData).unwrap();
-      toast.success("Registration successful!", {
-        position: "top-center",
-        autoClose: 5000,
-        theme: "colored",
-      });
-      setTimeout(() => {
-        navigate("/otpverify");
-      }, 2000);
+      await registerUser(formData).unwrap();
 
-      // reset form
+      sessionStorage.setItem("pendingVerificationEmail", formData.email);
+      toast.success("Registration successful!");
+
+      navigate("/otpverify", {
+        state: { email: formData.email },
+      });
+
       setFormData({
         fullName: "",
         email: "",
         password: "",
       });
     } catch (error) {
-      console.log("Error:", error);
-      setErrors({
-        [error.data.field]: error.data.message,
-      });
+      const message = error?.data?.message || "Registration failed. Please try again.";
+      const field = error?.data?.field;
+
+      if (field) {
+        setErrors({ [field]: message });
+        return;
+      }
+
+      toast.error(message);
     }
   };
+
   return (
     <div className='min-h-screen bg-[#e3d6c5] relative overflow-hidden flex flex-col lg:flex-row font-sans'>
       {/* Background blobs */}
@@ -95,6 +107,7 @@ const Registration = () => {
               onChange={handleChange}
               placeholder='Enter your full name'
               error={errors.fullName}
+              disabled={isLoading}
             />
 
             <Input
@@ -105,6 +118,7 @@ const Registration = () => {
               onChange={handleChange}
               placeholder='Enter your email'
               error={errors.email}
+              disabled={isLoading}
             />
 
             <Input
@@ -115,10 +129,11 @@ const Registration = () => {
               onChange={handleChange}
               placeholder='Enter your password'
               error={errors.password}
+              disabled={isLoading}
             />
 
-            <Button type='submit' className='w-full'>
-              Sign Up
+            <Button type='submit' className='w-full' disabled={isLoading}>
+              {isLoading ? "Signing up..." : "Sign Up"}
             </Button>
           </form>
         </div>

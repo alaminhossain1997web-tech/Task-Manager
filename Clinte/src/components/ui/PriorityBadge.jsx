@@ -4,7 +4,7 @@ const PriorityBadge = ({ priority }) => {
   const priorityColor = {
     high: "bg-red-500",
     mideum: "bg-yellow-500",
-    normal: "bg-green-500",
+    Normal: "bg-green-500",
   };
 
   return (
