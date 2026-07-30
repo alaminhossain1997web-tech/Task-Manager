@@ -13,7 +13,8 @@ const {
 
 const authCookieOptions = {
   httpOnly: true,
-  sameSite: "lax",
+  secure: true,
+  sameSite: "none",
   secure: process.env.NODE_ENV === "production",
 };
 
