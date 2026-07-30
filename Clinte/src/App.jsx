@@ -10,36 +10,18 @@ import Registration from "./pages/Registration";
 import UpdateProfile from "./pages/UpdateProfile";
 
 const ProtectedRoute = () => {
-  const token = localStorage.getItem("token");
-
-  // যদি লোকাল স্টোরেজে টোকেনই না থাকে, তবে ব্যাকএন্ডে কল দেওয়ার দরকারই নেই, সরাসরি লগইনে পাঠাবে
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const {
-    data: profile,
-    isLoading,
-    isError,
-    error,
-  } = useGetProfileQuery();
+  const { data: profile, isLoading, isError } = useGetProfileQuery();
 
   if (isLoading) {
     return <Loader />;
   }
 
-  if (isError) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    return <Navigate to="/login" replace />;
-  }
-
-  if (!profile) {
+  if (isError || !profile) {
     return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;
-};
+};;
 
 const App = () => {
   return (
